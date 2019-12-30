@@ -36,16 +36,30 @@ def main():
     ]
     board.set_state(state)
 
+    # 3x3 for speed
+    # state = [
+    #     ['O', 'T', 'E'],
+    #     ['S', 'R', 'T'],
+    #     ['P', 'E', 'A']
+    # ]
+    # board.set_state(state)
+
     min_word_len = 3
-    words = load_words_from_file('dict.txt')
+    words = load_words_from_file('dict.txt', min_word_len)
     word_dict = BoggleWordDict(words, board, min_word_len)
 
     solver = BoggleSolver(board, word_dict, min_word_len)
+
+    start_time = time.time()
     solver.solve()
+    end_time = time.time()
+    benchmark = end_time - start_time
+
+    print('Time: ' + str(benchmark) + ' seconds')
 
     return
 
-def load_words_from_file(filepath):
+def load_words_from_file(filepath, min_word_len):
     words = []
 
     with open(filepath, 'r') as f:
@@ -54,6 +68,9 @@ def load_words_from_file(filepath):
 
             if line == "":
                 break
+
+            if len(line) < min_word_len:
+                continue
 
             words.append(line[:-1])
 

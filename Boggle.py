@@ -43,15 +43,18 @@ class BoggleSolver:
         print("[{:100}] {}%\n".format("".join(["|" for _ in range(progress)]), progress))
 
     def solve_for_root(self, x, y, solutions, visited, current):
+        # dont check already visited letters in run
         if [x, y] in visited:
             return
 
         width = self.board.width
         height = self.board.height
 
+        # dont check out-of-bounds positions
         if x not in range(width) or y not in range(height):
             return
 
+        # mark current position as visited and add the letter to the run
         visited.append([x, y])
         current += self.board.state[y][x]
 
@@ -60,6 +63,7 @@ class BoggleSolver:
         if length > self.max_word_len:
             return
 
+        # validate word length and lookup word in dictionary
         if length >= self.min_word_len:
             key = current[:self.min_word_len]
 
@@ -68,9 +72,17 @@ class BoggleSolver:
 
             word_set = self.word_dict[key]
 
+            prefix_in_dict = False
+
             for word in word_set:
-                if word.word == current and word not in self.solutions:
-                    solutions.append(word)
+                if word.word.startswith(current):
+                    prefix_in_dict = True
+
+                    if word.word == current and word not in self.solutions:
+                        solutions.append(word)
+
+            if not prefix_in_dict:
+                return
 
         for y_offset in range(-1, 2):
             for x_offset in range(-1, 2):
