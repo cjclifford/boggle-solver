@@ -1,8 +1,8 @@
-import random, time
+import random, time, sys
 
 from Boggle import BoggleSolver, BoggleBoard, BoggleWordDict
 
-def main():
+def main(argv):
     dice_set = [
         ['P', 'F', 'A', 'S', 'K', 'F'],
         ['T', 'U', 'I', 'C', 'O', 'M'],
@@ -27,14 +27,15 @@ def main():
     board = BoggleBoard(dice_set)
     board.shuffle()
 
-    # best 4x4
-    state = [
-        ['O', 'T', 'E', 'H'],
-        ['S', 'R', 'T', 'S'],
-        ['P', 'E', 'A', 'I'],
-        ['A', 'L', 'M', 'S']
-    ]
-    board.set_state(state)
+    if len(argv) == 2:
+        letters = list(argv[1].upper())
+        state = [[None for _ in range(4)] for _ in range(4)]
+        for y in range(4):
+            for x in range(4):
+                state[y][x] = letters[x + y * 4]
+        board.set_state(state)
+
+        print(state)
 
     # 3x3 for speed
     # state = [
@@ -77,4 +78,4 @@ def load_words_from_file(filepath, min_word_len):
     return words
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)
