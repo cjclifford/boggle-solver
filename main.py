@@ -22,45 +22,62 @@ def main(argv):
         ['T', 'O', 'A', 'T', 'O', 'W']
     ]
 
-    width, height = 4, 4
-
     board = BoggleBoard(dice_set)
-    board.shuffle()
 
-    if len(argv) == 2:
-        letters = list(argv[1].upper())
-        state = [[None for _ in range(4)] for _ in range(4)]
-        for y in range(4):
-            for x in range(4):
-                state[y][x] = letters[x + y * 4]
-        board.set_state(state)
-
-        print(state)
-
-    # 3x3 for speed
-    # state = [
-    #     ['O', 'T', 'E'],
-    #     ['S', 'R', 'T'],
-    #     ['P', 'E', 'A']
-    # ]
-    # board.set_state(state)
-
+    argc = len(argv)
     min_word_len = 3
-    words = load_words_from_file('dict.txt', min_word_len)
+
+    if argc >= 2:
+        width, height = 4, 4
+
+        if argc >= 4:
+            width, height = int(argv[2]), int(argv[3])
+
+        if argc == 5:
+            min_word_len = int(argv[4])
+
+        letters = list(argv[1].upper())
+        state = [[None for _ in range(width)] for _ in range(height)]
+
+        for y in range(height):
+            for x in range(width):
+                state[y][x] = letters[x + y * width]
+        board.set_state(state)
+    else:
+        board.shuffle()
+
+    words = load_words_from_file('dict.txt')
     word_dict = BoggleWordDict(words, board, min_word_len)
 
     solver = BoggleSolver(board, word_dict, min_word_len)
 
     start_time = time.time()
-    solver.solve()
+    solutions = solver.solve()
     end_time = time.time()
     benchmark = end_time - start_time
 
-    print('Time: ' + str(benchmark) + ' seconds')
+    print('Time: ' + str(benchmark) + ' seconds\n')
+
+    while True:
+        word = input('Enter used word (return to stop):')
+
+        if word == "":
+            break
+
+        for solution in solutions:
+            if solution[0] == word:
+                solutions.remove(solution)
+
+    score = 0
+    for solution in solutions:
+        print(solution[0] + ': ' + str(solution[1]))
+        score += solution[1]
+
+    print('\nFinal Score:', score)
 
     return
 
-def load_words_from_file(filepath, min_word_len):
+def load_words_from_file(filepath):
     words = []
 
     with open(filepath, 'r') as f:
@@ -69,9 +86,6 @@ def load_words_from_file(filepath, min_word_len):
 
             if line == "":
                 break
-
-            if len(line) < min_word_len:
-                continue
 
             words.append(line[:-1])
 

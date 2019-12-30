@@ -17,10 +17,10 @@ class BoggleSolver:
         benchmark = end_time - start_time
         print('Benchmark: ' + str(benchmark) + ' seconds')
 
-        solutions = [solution.word for solution in self.solutions]
-        solutions.sort()
+        solutions = [[solution.word, solution.score] for solution in self.solutions]
+        solutions.sort(key=lambda x: x[0])
 
-        print(", ".join(solutions))
+        print(", ".join([solution[0] for solution in solutions]))
         print(str(len(self.solutions)) + " words")
 
         total = 0
@@ -28,7 +28,9 @@ class BoggleSolver:
         for solution in self.solutions:
             total += solution.score
 
-        print('score: ' + str(total))
+        print('Score: ' + str(total))
+
+        return solutions
 
     def solve_for_board(self):
         width = self.board.width
@@ -37,10 +39,8 @@ class BoggleSolver:
         for y in range(width):
             for x in range(height):
                 progress = int((x + y * width) / (width * height) * 100)
-                print("[{:100}] {}%".format("".join(["|" for _ in range(progress)]), progress))
                 self.solve_for_root(x, y, self.solutions, [], "")
         progress = 100
-        print("[{:100}] {}%\n".format("".join(["|" for _ in range(progress)]), progress))
 
     def solve_for_root(self, x, y, solutions, visited, current):
         # dont check already visited letters in run
@@ -153,8 +153,6 @@ class BoggleWordDict:
 
             boggle_word = BoggleWord(word, self.min_word_len)
 
-            # self.words[word] = boggle_word
-
             if hash(boggle_word) in self.words.keys():
                 self.words[hash(boggle_word)].append(boggle_word)
             else:
@@ -177,8 +175,7 @@ class BoggleWord:
     def update_score(self):
         length = len(self.word)
 
-        # TODO: verify scores with rules
-        if length in  [3, 4]:
+        if length <= 4:
             score = 1
         elif length in [5, 6, 7]:
             score = length - 3
